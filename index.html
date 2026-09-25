@@ -26,38 +26,41 @@
 </header>
 
 <section class="hero">
-  <div class="wrap">
-    <h1>从序列到洞察</h1>
-    <p class="lede">流感病毒全基因组变异分析工具 · Windows 桌面端</p>
-    <p class="desc">
-      输入一份 8 节段 FASTA 基因组序列，自动完成亚型鉴定、各节段翻译、335 条位点的突变检测、
-      耐药分析、选择压力评估、重配来源推断、基因星座完整性评估与谱系定位，
-      并把结果导出为 Word、Excel 或 Markdown 报告。
-    </p>
-    <ul class="facts">
-      <li>甲型 H1–H16 × N1–N9</li>
-      <li>B/Victoria 与 B/Yamagata</li>
-      <li>HA / NA / PB2 / PB1 / PA / NP / M / NS 全部 8 个节段</li>
-      <li>单文件 EXE，免安装</li>
-    </ul>
-    <div class="cta-row">
-      <a id="dl-link" class="btn btn-primary" href="#get" aria-disabled="true">下载链接即将发布</a>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="badge">v5.1.0 · Windows 桌面端 · 免安装</span>
+      <h1>流感病毒全基因组<br>变异分析工具</h1>
+      <p class="lede">
+        输入一份 8 节段 FASTA，一次跑完亚型鉴定、各节段翻译、335 条位点的突变检测、
+        耐药分析、选择压力评估、重配来源推断与谱系定位，结果导出 Word / Excel / Markdown 报告。
+      </p>
+      <ul class="facts">
+        <li>甲型 H1–H16 × N1–N9</li>
+        <li>B/Victoria 与 B/Yamagata</li>
+        <li>HA / NA / PB2 / PB1 / PA / NP / M / NS 全部 8 个节段</li>
+        <li>待分析序列全程不出本机</li>
+      </ul>
+      <div class="cta-row">
+        <a id="dl-link" class="btn btn-primary" href="#get" aria-disabled="true">下载链接即将发布</a>
+        <a class="btn btn-ghost" href="guide.html">使用说明</a>
+      </div>
       <p class="cta-note">
         如需安装包，请邮件联系
         <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>。
       </p>
+      <dl class="hero-stats">
+        <div><dt>335</dt><dd>条位点记录<br>HA 120 / NA 107 / 内部节段 108</dd></div>
+        <div><dt>18</dt><dd>个分析视图<br>从序列质控到谱系定位</dd></div>
+        <div><dt>8</dt><dd>个基因组节段<br>全基因组而非仅 HA/NA</dd></div>
+        <div><dt>3</dt><dd>种报告格式<br>Word / Excel / Markdown</dd></div>
+      </dl>
+    </div>
+    <div class="hero-visual">
+      <img src="assets/screens/01-overview.png" width="1400" height="765"
+           alt="分析总览视图的实际截图：样本信息、异常位点计数、综合风险评分、耐药标记与关键发现卡片">
     </div>
   </div>
 </section>
-
-<div class="band">
-  <dl class="wrap">
-    <div><dt>335</dt><dd>条位点记录<br>HA 120 / NA 107 / 内部节段 108</dd></div>
-    <div><dt>18</dt><dd>个分析视图<br>从序列质控到谱系定位</dd></div>
-    <div><dt>8</dt><dd>个基因组节段<br>全基因组而非仅 HA/NA</dd></div>
-    <div><dt>3</dt><dd>种报告格式<br>Word / Excel / Markdown</dd></div>
-  </dl>
-</div>
 
 <section id="capabilities">
   <div class="wrap">
@@ -71,42 +74,42 @@
     <div class="group">
       <h3>质控与总览</h3>
       <div class="cards">
-        <div class="card"><h4>分析总览</h4><p>单样本与批量样本的摘要看板，关键指标一屏收口，点击卡片跳转到对应视图。</p></div>
-        <div class="card"><h4>序列质控</h4><p>读码框完整性、终止密码子与异常截断、各节段翻译长度与预期比较、CDS 起始密码子验证，逐节段给出评分。</p></div>
-        <div class="card"><h4>群体摘要</h4><p>多样本横向汇总与关键突变对比，批量分析完成后自动切换到群体口径。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">📊</div><h4>分析总览</h4><p>单样本与批量样本的摘要看板，关键指标一屏收口，点击卡片跳转到对应视图。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🧪</div><h4>序列质控</h4><p>读码框完整性、终止密码子与异常截断、各节段翻译长度与预期比较、CDS 起始密码子验证，逐节段给出评分。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">👥</div><h4>群体摘要</h4><p>多样本横向汇总与关键突变对比，批量分析完成后自动切换到群体口径。</p></div>
       </div>
     </div>
 
     <div class="group">
       <h3>变异与耐药</h3>
       <div class="cards">
-        <div class="card"><h4>突变位点总表</h4><p>335 条位点记录，三层风险分级（预警 / 监测 / 基线）与宿主标志分类，每条附功能影响和参考文献。</p></div>
-        <div class="card"><h4>耐药位点</h4><p>NA 抑制剂（奥司他韦、扎那米韦、帕拉米韦）、M2 离子通道、PB2 巴洛沙韦相关位点，含 N3/N7/N8 到 N2 坐标的等效映射。</p></div>
-        <div class="card"><h4>突变位点分类统计</h4><p>按变异类别与宿主标志的分布图表，配基因组浏览器风格的位点图谱。</p></div>
-        <div class="card"><h4>裂解位点</h4><p>HA 裂解位点序列展示与 HPAI / LPAI 判定，按 P1–P5 / P1′–P5′ 标准标注。</p></div>
-        <div class="card"><h4>引物检查</h4><p>引物与目标序列的匹配检查。</p></div>
-        <div class="card"><h4>环形基因组</h4><p>8 个节段的环形视图，可按变异类别筛选显示。</p></div>
-        <div class="card"><h4>突变网络</h4><p>以 phi 系数构建突变共现网络，用图连通分量识别功能模块。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">📋</div><h4>突变位点总表</h4><p>335 条位点记录，三层风险分级（预警 / 监测 / 基线）与宿主标志分类，每条附功能影响和参考文献。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">💊</div><h4>耐药位点</h4><p>NA 抑制剂（奥司他韦、扎那米韦、帕拉米韦）、M2 离子通道、PB2 巴洛沙韦相关位点，含 N3/N7/N8 到 N2 坐标的等效映射。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">📈</div><h4>突变位点分类统计</h4><p>按变异类别与宿主标志的分布图表，配基因组浏览器风格的位点图谱。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">✂️</div><h4>裂解位点</h4><p>HA 裂解位点序列展示与 HPAI / LPAI 判定，按 P1–P5 / P1′–P5′ 标准标注。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🎯</div><h4>引物检查</h4><p>引物与目标序列的匹配检查。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🧬</div><h4>环形基因组</h4><p>8 个节段的环形视图，可按变异类别筛选显示。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🕸️</div><h4>突变网络</h4><p>以 phi 系数构建突变共现网络，用图连通分量识别功能模块。</p></div>
       </div>
     </div>
 
     <div class="group">
       <h3>进化与谱系</h3>
       <div class="cards">
-        <div class="card"><h4>进化树</h4><p>骨架树加样本放置的系统发育视图，支持按分支与性状着色，可导出 PNG / SVG / PDF / HTML。</p></div>
-        <div class="card"><h4>谱系定位</h4><p>基于 Nextclade 数据集与 IQ-TREE 2 最大似然法的 clade 分配；不支持的亚型自动隐藏该视图。</p></div>
-        <div class="card"><h4>重配分析</h4><p>8 个节段的来源推断与重配模式识别，逐节段标注最近代表株来源。</p></div>
-        <div class="card"><h4>基因星座</h4><p>已知基因星座完整度评估，列出已匹配的标志突变与缺失的关键突变。</p></div>
-        <div class="card"><h4>时间趋势</h4><p>按采样时间展开的趋势分析，用于批量样本的时间序列观察。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🌳</div><h4>进化树</h4><p>骨架树加样本放置的系统发育视图，支持按分支与性状着色，可导出 PNG / SVG / PDF / HTML。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🧭</div><h4>谱系定位</h4><p>基于 Nextclade 数据集与 IQ-TREE 2 最大似然法的 clade 分配；不支持的亚型自动隐藏该视图。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">🔀</div><h4>重配分析</h4><p>8 个节段的来源推断与重配模式识别，逐节段标注最近代表株来源。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">✨</div><h4>基因星座</h4><p>已知基因星座完整度评估，列出已匹配的标志突变与缺失的关键突变。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">📅</div><h4>时间趋势</h4><p>按采样时间展开的趋势分析，用于批量样本的时间序列观察。</p></div>
       </div>
     </div>
 
     <div class="group">
       <h3>风险与交付</h3>
       <div class="cards">
-        <div class="card"><h4>综合风险评估</h4><p>致病性、人畜适应、配方新颖度、宿主四个维度的评分，并给出临界态提示。</p></div>
-        <div class="card"><h4>选择压力</h4><p>各功能区突变密度与历史基准比较，内置 Nei–Gojobori 计数与 Fisher 精确检验。</p></div>
-        <div class="card"><h4>疫苗株对比</h4><p>与推荐疫苗株的氨基酸差异，按 HA1 功能区标注差异等级。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">⚠️</div><h4>综合风险评估</h4><p>致病性、人畜适应、配方新颖度、宿主四个维度的评分，并给出临界态提示。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">⚖️</div><h4>选择压力</h4><p>各功能区突变密度与历史基准比较，内置 Nei–Gojobori 计数与 Fisher 精确检验。</p></div>
+        <div class="card"><div class="card-icon" aria-hidden="true">💉</div><h4>疫苗株对比</h4><p>与推荐疫苗株的氨基酸差异，按 HA1 功能区标注差异等级。</p></div>
       </div>
     </div>
   </div>
@@ -189,6 +192,132 @@
         <h4>待分析序列不出本机</h4>
         <p>输入的 FASTA 序列全程在本机处理，<strong>软件不向任何服务上传序列</strong>。唯一的网络行为是 3D 结构视图按需从 RCSB / EBI 拉取公开结构文件，且优先使用本地缓存。</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="wrap">
+    <p class="eyebrow">引用与数据来源</p>
+    <h2>每一条判读都能追到出处</h2>
+    <p class="section-intro">
+      分析工具的结论必须能被追溯。下表列出各环节实际使用的数据来源，
+      以及导出报告里随每条结果一起给出的文献引用是怎么组织的。
+    </p>
+
+    <div class="src-grid">
+      <div class="src">
+        <h3>位点判读的文献依据</h3>
+        <p>内置 <strong>49 条</strong>文献引用表（作者 / 年份 / 题名 / 期刊 / 卷期 / 页码），
+        335 条位点记录中有 <strong>331 条</strong>挂着引用编号。
+        导出报告会在每条突变后给出 <code>[ref74] Bloom JD, Gong LI, Baltimore D (2010) — Permissive secondary
+        mutations…</code> 这样的一行，可直接按题名检索原文。</p>
+      </div>
+      <div class="src">
+        <h3>疫苗株推荐</h3>
+        <p>疫苗株对比与配方判读读的是内置疫苗数据库（当前 v2.14，2026-09-24 更新），
+        来源标注为 WHO 疫苗成分推荐与 Nextclade 参考序列，
+        按流行季分组（2026-2027 北半球、2025-2026 北半球、2025 与 2026 南半球），
+        另含 H5 / H7 / H9 参考株。</p>
+      </div>
+      <div class="src">
+        <h3>参考序列与骨架树</h3>
+        <p>逐节段参考序列库经 NCBI E-utilities 从 GenBank 抓取；
+        系统发育骨架树由 IQ-TREE 2 在本地构建，
+        谱系分支定义读自随包捆绑的 Nextclade 数据集（B、H1N1pdm09、H3N2、H5 四套）
+        与 8 份按亚型整理的 clade 定义文件。</p>
+      </div>
+      <div class="src">
+        <h3>抗原位点与漂移基准</h3>
+        <p>抗原位点定义按亚型取用，参考状态基于经典文献（Wiley 1981、Connor 1994、
+        Matrosovich 2000 等）；HA1 漂移基线按 H3 与 B/Victoria 分别取 Koel 2013 与
+        Bush 1999 的历史基准。报告里会同步给出提示：参考氨基酸反映历史性参考株特征，
+        对近年流行株可能已发生偏移。</p>
+      </div>
+      <div class="src">
+        <h3>3D 结构视图</h3>
+        <p>结构文件按需从 RCSB / EBI 拉取公开数据，优先使用本地缓存；
+        除结构拉取与参考序列更新外，软件没有其他网络依赖。</p>
+      </div>
+      <div class="src">
+        <h3>外部引擎</h3>
+        <p>IQ-TREE 2（最大似然建树）、Nextclade CLI（谱系定位）、MAFFT（多序列比对，随包捆绑）、
+        Biopython（序列比对与翻译）。四者全部可选，缺失时回退到内置实现并在界面说明，
+        不阻塞基础分析。</p>
+      </div>
+    </div>
+
+    <div class="cite">
+      <h3>在论文或报告中引用本软件</h3>
+      <p class="cite-line">赵翔. FluMutationAnalyzer: 流感病毒全基因组变异分析工具 [计算机程序]. 版本 5.1.0. 2026.</p>
+      <p class="cite-line">Zhao X. FluMutationAnalyzer: A Desktop Tool for Influenza Virus Whole-Genome Mutation Analysis [Computer software]. Version 5.1.0. 2026.</p>
+      <p class="cite-note">
+        获取地址：<a href="https://cnic-zx.github.io/flu-analyzer/">cnic-zx.github.io/flu-analyzer</a>
+        （镜像：<a href="https://flu-analyzer-a8ujj54t9qv.qoder.zone">flu-analyzer-a8ujj54t9qv.qoder.zone</a>）。
+        两条地址内容一致，任选可访问者。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="history">
+  <div class="wrap">
+    <p class="eyebrow">版本历史</p>
+    <h2>它是怎么一路长成现在这样的</h2>
+    <p class="section-intro">
+      这里收录最近几个版本的主要变化，完整清单在
+      <a href="changelog.html">更新日志</a>；软件内「帮助 → 更新日志」是权威记录。
+    </p>
+
+    <div class="rel history">
+      <article>
+        <h3>5.1.0 <span class="rel-now">当前版本</span></h3>
+        <p class="rel-title">【修复】全面代码审查收口 —— 消除「把没读到的东西渲染成自信结论」这一类缺陷</p>
+        <ul>
+          <li>结果语义统一为五态：「没读到」(nocall) 不再计入异常数、不再染红</li>
+          <li>裂解位点 HPAI 判据改为连续碱性氨基酸 run + 位置敏感，修复真实低致病 H5 加 1 个替换即被判高致病</li>
+          <li>选择压力页明示「未运行 HyPhy FUBAR」；清除曾被误提交进仓库的 NCBI API Key</li>
+        </ul>
+      </article>
+      <article>
+        <h3>5.0.0</h3>
+        <p class="rel-title">【重大更新】全模块代码质量审查与优化</p>
+        <ul>
+          <li>亚型检测修复 H7N9 信号肽误判、H15N9 子串误伤；序列质控 P0–P2 共 16 项算法修复</li>
+          <li>重配分析提速约 3 倍；批量分析修复"卡在 60%"的管道死锁</li>
+        </ul>
+      </article>
+      <article>
+        <h3>4.9.0</h3>
+        <p class="rel-title">进化树模块全面修复与优化</p>
+        <ul>
+          <li>修复 IQ-TREE 工具路径未传递导致静默降级为内置 NJ 法</li>
+          <li>从 Nextclade 数据集重建骨架代表株序列，新增建树进度提示</li>
+        </ul>
+      </article>
+      <article>
+        <h3>4.8.1</h3>
+        <p class="rel-title">【修复】全面代码审查，修复 33 个问题</p>
+        <ul>
+          <li>突变位点总表 8 项优化：清除重复条目、修复 N9 位点坐标冲突</li>
+          <li>位点数据生成器新上去重校验机制，防止数据源污染</li>
+        </ul>
+      </article>
+      <article>
+        <h3>4.8.0</h3>
+        <p class="rel-title">【架构】主窗口渐进式拆分 + 性能优化</p>
+        <ul>
+          <li>WorkerManager 统一管理后台线程生命周期，CacheManager 管理分析结果缓存</li>
+          <li>亚型检测从 O(n×m×L²) 优化为 k-mer 预过滤</li>
+        </ul>
+      </article>
+      <article>
+        <h3>4.7.0</h3>
+        <p class="rel-title">【新功能】三大界面增强模块</p>
+        <ul>
+          <li>分析总览仪表盘、交互式图表面板、专业报告导出器（封面 + 执行摘要 + 嵌入图表）</li>
+        </ul>
+      </article>
     </div>
   </div>
 </section>
