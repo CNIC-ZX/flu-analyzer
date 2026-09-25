@@ -41,11 +41,13 @@
         <li>待分析序列全程不出本机</li>
       </ul>
       <div class="cta-row">
-        <a id="dl-link" class="btn btn-primary" href="#get" aria-disabled="true">下载链接即将发布</a>
+        <a id="dl-link" class="btn btn-primary" href="https://share.weiyun.com/86ME3GyS"
+           target="_blank" rel="noopener">下载 v5.1.0 安装包</a>
         <a class="btn btn-ghost" href="guide.html">使用说明</a>
       </div>
       <p class="cta-note">
-        如需安装包，请邮件联系
+        安装包托管在腾讯微云，需用微信或 QQ 登录后下载（约 297 MiB，2026-09-25 实测）。
+        下载后请按<a href="#get">下方校验值</a>核对完整性；不便登录请邮件联系
         <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>。
       </p>
       <dl class="hero-stats">
@@ -325,11 +327,13 @@
 <section id="get">
   <div class="wrap">
     <p class="eyebrow">获取安装包</p>
-    <h2>下载链接即将发布</h2>
+    <h2>通过腾讯微云下载</h2>
     <p class="section-intro">
-      当前不提供直链。如需安装包，请邮件联系
-      <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>，
-      注明单位与使用场景。以下是本版本安装包的完整规格与校验值，收到文件后可据此自查完整性。
+      <a href="https://share.weiyun.com/86ME3GyS" target="_blank" rel="noopener">share.weiyun.com/86ME3GyS</a>
+      —— 分享页可匿名打开，能看到文件与大小；<strong>点「普通下载」需用微信或 QQ 扫码登录后</strong>才会开始传输。
+      不便登录（如单位终端管控、无微信/QQ 账号）请邮件联系
+      <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>，注明单位与使用场景。
+      下表是本版本安装包的规格与校验值，拿到文件后请先核对完整性。
     </p>
 
     <div class="getbox">
@@ -339,7 +343,7 @@
           <tr><th scope="row">文件名</th><td class="mono">FluMutationAnalyzer_v5.1.0.exe</td></tr>
           <tr><th scope="row">版本</th><td>5.1.0</td></tr>
           <tr><th scope="row">平台</th><td>Windows 10 / 11 · x64（无 macOS / Linux 版本）</td></tr>
-          <tr><th scope="row">体积</th><td>311,905,074 字节（约 297 MiB）</td></tr>
+          <tr><th scope="row">体积</th><td>311,905,074 字节（约 297 MiB；微云分享页显示 297.46 MB，同一文件）</td></tr>
           <tr><th scope="row">SHA-256</th><td class="mono">e3b7944f76a061e3299b306125cf9d0c69f91dfa88a5cef545f5d0882776ad9d</td></tr>
           <tr><th scope="row">安装方式</th><td>单文件可执行程序，免安装，双击运行</td></tr>
         </tbody>
@@ -354,7 +358,7 @@
       <div class="notice">
         <p><strong>校验方法：</strong>在文件所在目录打开 PowerShell 执行
         <code>Get-FileHash .\FluMutationAnalyzer_v5.1.0.exe -Algorithm SHA256</code>，
-        结果应与上表逐字符一致。</p>
+        结果应与上表逐字符一致。若不一致，请停止运行并邮件告知——说明你拿到的不是这个构建，或文件在传输中损坏。</p>
       </div>
     </div>
   </div>
