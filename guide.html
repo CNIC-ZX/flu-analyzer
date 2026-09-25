@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用说明 — FluMutationAnalyzer</title>
+<meta name="description" content="FluMutationAnalyzer 使用说明：输入格式要求、五步上手流程、快捷键、结果五态语义与批量分析建议。">
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="wordmark" href="index.html">Flu<span>Mutation</span>Analyzer</a>
+    <span class="chip">v5.1.0</span>
+    <nav aria-label="页面导航">
+      <a href="index.html">介绍</a>
+      <a href="index.html#capabilities">能力</a>
+      <a href="guide.html" aria-current="page">使用说明</a>
+      <a href="changelog.html">更新日志</a>
+      <a href="index.html#get">获取安装包</a>
+    </nav>
+  </div>
+</header>
+
+<div class="pagehead">
+  <div class="wrap">
+    <h1>使用说明</h1>
+    <p>面向没有生物信息学背景的使用者。全流程在本机完成，不需要命令行，也不需要联网。</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap prose">
+    <h2 id="input">一、准备输入文件</h2>
+    <p>软件读取的是 <strong>FASTA 格式的流感病毒全基因组序列</strong>，一个文件里包含同一毒株的 8 个节段：</p>
+    <pre><code>&gt;PB2 | A/Washington/.../2025 | segment 1 | ...
+AGCTTA...（核苷酸序列）
+&gt;PB1 | ...
+&gt;PA | ...
+&gt;NP | ...
+&gt;M | ...
+&gt;NS | ...
+&gt;HA | ...
+&gt;NA | ...</code></pre>
+    <ul>
+      <li>可接受的文件后缀：<code>.fasta</code>、<code>.fa</code>、<code>.txt</code>。</li>
+      <li>节段命名支持常见写法，软件会自动识别节段与亚型。</li>
+      <li>缺节段不会中断分析，但会在质控与摘要里标出来——<strong>缺哪个节段，相应结论就不成立</strong>。</li>
+      <li>一个文件里放了多个毒株时，软件会自动拆分逐个分析。</li>
+    </ul>
+
+    <h2 id="steps">二、五步跑完一个样本</h2>
+    <ol class="steps">
+      <li><strong>打开文件</strong>：点工具栏「📂 打开」，或按 <kbd>Ctrl</kbd> + <kbd>O</kbd>；也可以直接把 FASTA 拖到窗口里。</li>
+      <li><strong>等自动分析跑完</strong>：软件依次完成亚型识别 → 8 节段翻译 → 位点比对 → 耐药与宿主适应判读 → 重配来源推断 → 进化树构建与谱系定位。工具栏右侧显示「✅ 全部分析完成」即为结束。</li>
+      <li><strong>看「分析总览」</strong>：样本信息、异常位点数、综合风险评分、耐药标记与关键发现都在这一屏。点卡片会跳到对应的详情视图。</li>
+      <li><strong>逐个视图核对</strong>：突变位点总表看具体替换，重配分析看节段来源，进化树看它落在哪个分支。</li>
+      <li><strong>导出报告</strong>：点「📤 导出」或用 <kbd>Ctrl</kbd> + <kbd>M</kbd> / <kbd>D</kbd> / <kbd>E</kbd> 出 Markdown / Word / Excel。</li>
+    </ol>
+
+    <h2 id="keys">三、快捷键</h2>
+    <table class="keys">
+      <tbody>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>O</kbd></th><td>打开单个 FASTA 文件</td></tr>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>B</kbd></th><td>批量选择多个 FASTA 文件分析</td></tr>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>M</kbd></th><td>导出 Markdown 报告</td></tr>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>D</kbd></th><td>导出 Word 报告</td></tr>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>E</kbd></th><td>导出 Excel 报告</td></tr>
+        <tr><th><kbd>Ctrl</kbd> + <kbd>Q</kbd></th><td>退出</td></tr>
+      </tbody>
+    </table>
+    <p>样本列表里可用 <kbd>↑</kbd> <kbd>↓</kbd> 切换当前样本，右侧所有视图会跟着切换。</p>
+
+    <h2 id="states">四、结果怎么读：五种状态</h2>
+    <p>每条位点结果都带一个状态。<strong>最关键的一条是：「没读到」不是「读到了异常」。</strong></p>
+    <ul>
+      <li><code>confirmed</code> —— 确认存在的替换，会进入异常统计与风险判读。</li>
+      <li><code>unknown</code> —— 读到了替换，但意义尚不明确。同样是发现，但配色与措辞与前者不同。</li>
+      <li><code>wildtype</code> —— 读到了，与参考一致，不是发现。</li>
+      <li><code>nocall</code> —— <strong>这个位点根本没读到</strong>（覆盖不足、缺节段、序列截断）。它不计入异常数，也不会被染成风险色。</li>
+      <li><code>info</code> —— 提示性条目，本身不对应某个位点。</li>
+    </ul>
+    <p>所以看到某个位点"没报"，先分清是<strong>读到了野生型</strong>还是<strong>压根没读到</strong>——这两件事在报告里含义完全不同。</p>
+
+    <h2 id="batch">五、批量分析</h2>
+    <ul>
+      <li>「📁 批量」一次选择多个文件，或一次拖入多个文件。</li>
+      <li>分析完成后「群体摘要」与「时间趋势」会自动填充。</li>
+      <li>批量样本数较多时建议内存 8GB 以上。</li>
+      <li>某个样本失败不会带走整批：失败样本会被标出，其余结果照常产出。</li>
+    </ul>
+
+    <h2 id="tools">六、外部工具：装了更好，不装也能跑</h2>
+    <p>进化树与谱系定位支持调用外部引擎，但<strong>全部可选</strong>，缺失时软件回退到内置实现，并在界面上说明回退了什么：</p>
+    <ul>
+      <li><strong>IQ-TREE 2</strong> —— 最大似然法建树。缺失时回退到内置 NJ 法。</li>
+      <li><strong>Nextclade CLI</strong> —— 谱系定位。缺失时使用内置突变匹配分类器。</li>
+      <li><strong>MAFFT</strong> —— 多序列比对，已随包捆绑。</li>
+    </ul>
+    <p>选择压力页显示的 dN/dS 类数字来自<strong>内置 Nei–Gojobori 计数 + Fisher 精确检验</strong>；软件不运行 HyPhy FUBAR，界面上也直接写明了这一点。基因型与重配分类不依赖 BLAST+。</p>
+
+    <p class="backline">← 回到 <a href="index.html">介绍页</a>，或查看 <a href="changelog.html">更新日志</a>。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="sig">国家流感中心 · 赵翔</span>
+    <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>
+    <span>FluMutationAnalyzer v5.1.0</span>
+    <p class="local-note">本页面是软件介绍，不提供在线分析。所有计算在使用者本机完成，待分析序列不上传任何服务。</p>
+  </div>
+</footer>
+
+</body>
+</html>

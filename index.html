@@ -1,1218 +1,261 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FluMutationAnalyzer — 流感病毒全基因组变异分析工具</title>
-<meta name="description" content="FluMutationAnalyzer 是一款面向流感病毒全基因组序列的桌面端综合分析工具，覆盖 H1-H16 × N1-N9 亚型与 8 个基因节段，261+ 关键位点突变检测、耐药分析、重配推断、谱系定位一站式完成。">
-<meta name="author" content="赵翔">
-<style>
-  :root {
-    --navy-900: #0f2a44;
-    --navy-800: #163a5c;
-    --navy-700: #1e4976;
-    --navy-600: #2c5f92;
-    --gold-500: #c9a227;
-    --gold-400: #d4b13f;
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --border: #e2e8f0;
-    --border-strong: #cbd5e0;
-    --text: #1a202c;
-    --text-muted: #4a5568;
-    --text-subtle: #718096;
-    --danger: #c53030;
-    --warn: #dd6b20;
-    --ok: #2f855a;
-    --shadow-sm: 0 1px 2px rgba(15, 42, 68, 0.06);
-    --shadow-md: 0 4px 12px rgba(15, 42, 68, 0.08);
-    --shadow-lg: 0 12px 32px rgba(15, 42, 68, 0.12);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
-
-  body {
-    font-family: "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", "Segoe UI", system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text);
-    background: var(--bg);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  code, kbd, pre {
-    font-family: "Cascadia Code", "JetBrains Mono", Consolas, Monaco, "Courier New", monospace;
-    font-size: 0.9em;
-  }
-
-  a { color: var(--navy-700); text-decoration: none; }
-  a:hover { color: var(--navy-600); text-decoration: underline; }
-
-  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
-
-  /* ============ Nav ============ */
-  nav.topbar {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: saturate(180%) blur(10px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-inner {
-    display: flex; align-items: center; justify-content: space-between;
-    height: 64px;
-  }
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-    font-weight: 700; color: var(--navy-900); font-size: 16px;
-  }
-  .brand:hover { text-decoration: none; }
-  .brand-mark {
-    width: 32px; height: 32px; border-radius: 6px;
-    background: linear-gradient(135deg, var(--navy-800), var(--navy-600));
-    display: grid; place-items: center;
-    color: white; font-weight: 800; font-size: 14px;
-    letter-spacing: -0.5px;
-    box-shadow: var(--shadow-sm);
-  }
-  .brand-text small {
-    display: block; font-size: 11px; font-weight: 400;
-    color: var(--text-subtle); letter-spacing: 0.5px;
-  }
-  .nav-links { display: flex; gap: 4px; align-items: center; }
-  .nav-links a {
-    padding: 8px 14px; border-radius: 6px;
-    color: var(--text-muted); font-size: 14px; font-weight: 500;
-    transition: all 0.15s;
-  }
-  .nav-links a:hover {
-    background: var(--bg); color: var(--navy-800); text-decoration: none;
-  }
-  .nav-cta {
-    background: var(--navy-800) !important; color: white !important;
-    padding: 8px 18px !important; margin-left: 8px;
-  }
-  .nav-cta:hover { background: var(--navy-700) !important; }
-
-  @media (max-width: 820px) {
-    .nav-links a:not(.nav-cta) { display: none; }
-  }
-
-  /* ============ Hero ============ */
-  header.hero {
-    background:
-      radial-gradient(1200px 500px at 15% 0%, rgba(44, 95, 146, 0.14), transparent 60%),
-      radial-gradient(900px 400px at 90% 20%, rgba(201, 162, 39, 0.10), transparent 55%),
-      linear-gradient(180deg, #ffffff 0%, #f2f6fa 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 80px 0 72px;
-  }
-  .hero-grid {
-    display: grid; grid-template-columns: 1.15fr 0.85fr;
-    gap: 64px; align-items: center;
-  }
-  @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-    header.hero { padding: 56px 0 48px; }
-  }
-
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; font-weight: 600; letter-spacing: 1.2px;
-    color: var(--navy-700); text-transform: uppercase;
-    padding: 5px 12px; border-radius: 999px;
-    background: rgba(30, 73, 118, 0.08);
-    border: 1px solid rgba(30, 73, 118, 0.18);
-    margin-bottom: 20px;
-  }
-  .eyebrow .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--gold-500);
-  }
-
-  h1.hero-title {
-    font-size: 44px; font-weight: 800; line-height: 1.15;
-    color: var(--navy-900); letter-spacing: -1px;
-    margin-bottom: 12px;
-  }
-  .hero-subtitle {
-    font-size: 20px; color: var(--text-muted);
-    font-weight: 400; line-height: 1.5;
-    margin-bottom: 24px;
-  }
-  .hero-desc {
-    font-size: 15px; color: var(--text-muted);
-    max-width: 560px; margin-bottom: 32px;
-  }
-  @media (max-width: 900px) {
-    h1.hero-title { font-size: 34px; }
-    .hero-subtitle { font-size: 17px; }
-  }
-
-  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 36px; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 22px; border-radius: 8px;
-    font-size: 14px; font-weight: 600;
-    transition: all 0.18s; cursor: pointer; border: none;
-    text-decoration: none !important;
-  }
-  .btn-primary {
-    background: var(--navy-800); color: white;
-    box-shadow: var(--shadow-md);
-  }
-  .btn-primary:hover {
-    background: var(--navy-700);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-  }
-  .btn-secondary {
-    background: white; color: var(--navy-800);
-    border: 1px solid var(--border-strong);
-  }
-  .btn-secondary:hover {
-    border-color: var(--navy-700); background: #fdfefe;
-  }
-
-  .hero-stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 24px; padding-top: 28px;
-    border-top: 1px solid var(--border);
-  }
-  .stat-num {
-    font-size: 26px; font-weight: 800; color: var(--navy-800);
-    letter-spacing: -0.5px; line-height: 1.2;
-  }
-  .stat-label {
-    font-size: 12px; color: var(--text-subtle);
-    margin-top: 2px;
-  }
-  @media (max-width: 640px) {
-    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 18px; }
-  }
-
-  /* Hero right — mock window */
-  .hero-visual {
-    background: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    transform: perspective(1200px) rotateY(-6deg) rotateX(2deg);
-  }
-  @media (max-width: 900px) { .hero-visual { transform: none; } }
-  .mock-titlebar {
-    background: linear-gradient(180deg, #f6f8fa, #eef2f6);
-    padding: 10px 14px; display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-  .mock-dot { width: 11px; height: 11px; border-radius: 50%; }
-  .mock-dot.r { background: #ff5f57; }
-  .mock-dot.y { background: #febc2e; }
-  .mock-dot.g { background: #28c840; }
-  .mock-title {
-    margin-left: 12px; font-size: 12px; color: var(--text-subtle);
-    font-family: Consolas, Monaco, monospace;
-  }
-  .mock-body { padding: 20px; }
-  .mock-tabs {
-    display: flex; gap: 4px; border-bottom: 1px solid var(--border);
-    margin-bottom: 16px; padding-bottom: 0;
-  }
-  .mock-tab {
-    padding: 6px 12px; font-size: 11px; color: var(--text-subtle);
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-  }
-  .mock-tab.active {
-    color: var(--navy-800); border-bottom-color: var(--navy-800); font-weight: 600;
-  }
-  .mock-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-  }
-  .mock-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; padding: 10px 12px;
-  }
-  .mock-card-label { font-size: 10px; color: var(--text-subtle); }
-  .mock-card-value {
-    font-size: 15px; font-weight: 700; color: var(--navy-800);
-    margin-top: 2px;
-  }
-  .mock-card-value.gold { color: var(--gold-500); }
-  .mock-card-value.danger { color: var(--danger); }
-  .mock-card-value.ok { color: var(--ok); }
-
-  /* ============ Sections ============ */
-  section { padding: 72px 0; }
-  section.alt { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-
-  .section-head { margin-bottom: 44px; max-width: 780px; }
-  .section-eyebrow {
-    font-size: 12px; font-weight: 700; letter-spacing: 1.4px;
-    color: var(--gold-500); text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  h2.section-title {
-    font-size: 32px; font-weight: 800; color: var(--navy-900);
-    letter-spacing: -0.6px; margin-bottom: 12px; line-height: 1.25;
-  }
-  .section-desc { font-size: 16px; color: var(--text-muted); }
-  @media (max-width: 640px) {
-    section { padding: 52px 0; }
-    h2.section-title { font-size: 26px; }
-  }
-
-  /* ============ Features grid ============ */
-  .features-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-  }
-  @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
-
-  .feature-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 24px;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .feature-card::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0;
-    height: 3px; background: linear-gradient(90deg, var(--navy-700), var(--navy-600));
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.3s;
-  }
-  .feature-card:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  .feature-card:hover::before { transform: scaleX(1); }
-  .feature-icon {
-    width: 40px; height: 40px; border-radius: 8px;
-    background: linear-gradient(135deg, #eef3f8, #dfe8f1);
-    display: grid; place-items: center;
-    font-size: 20px; margin-bottom: 14px;
-    border: 1px solid var(--border);
-  }
-  .feature-title {
-    font-size: 16px; font-weight: 700; color: var(--navy-900);
-    margin-bottom: 8px;
-  }
-  .feature-desc {
-    font-size: 13.5px; color: var(--text-muted); line-height: 1.65;
-  }
-  .feature-tags {
-    margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px;
-  }
-  .feature-tag {
-    font-size: 11px; padding: 3px 8px; border-radius: 4px;
-    background: var(--bg); color: var(--text-subtle);
-    border: 1px solid var(--border);
-    font-family: Consolas, Monaco, monospace;
-  }
-
-  /* ============ Screenshots ============ */
-  .screens-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
-  }
-  @media (max-width: 800px) { .screens-grid { grid-template-columns: 1fr; } }
-  .screen-card {
-    background: white; border-radius: 10px; overflow: hidden;
-    border: 1px solid var(--border); box-shadow: var(--shadow-sm);
-    transition: all 0.2s;
-  }
-  .screen-card:hover { box-shadow: var(--shadow-md); }
-  .screen-frame {
-    background: linear-gradient(135deg, #eef2f6, #dde5ed);
-    aspect-ratio: 16 / 10;
-    display: grid; place-items: center;
-    color: var(--text-subtle);
-    position: relative;
-    overflow: hidden;
-  }
-  .screen-frame img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
-  .screen-placeholder {
-    text-align: center; padding: 20px;
-  }
-  .screen-placeholder .ph-icon {
-    font-size: 40px; opacity: 0.35; margin-bottom: 10px;
-    font-family: Consolas, Monaco, monospace;
-  }
-  .screen-placeholder .ph-text {
-    font-size: 13px; color: var(--text-subtle);
-  }
-  .screen-caption {
-    padding: 14px 18px; border-top: 1px solid var(--border);
-    background: #fdfefe;
-  }
-  .screen-caption-title {
-    font-size: 14px; font-weight: 700; color: var(--navy-900);
-    margin-bottom: 3px;
-  }
-  .screen-caption-desc {
-    font-size: 12.5px; color: var(--text-muted);
-  }
-
-  /* ============ Version history ============ */
-  .changelog-list { display: flex; flex-direction: column; gap: 14px; }
-  .release {
-    background: white; border: 1px solid var(--border);
-    border-radius: 10px; padding: 22px 26px;
-    transition: all 0.15s;
-  }
-  .release:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
-  .release-head {
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-    margin-bottom: 12px; padding-bottom: 12px;
-    border-bottom: 1px dashed var(--border);
-  }
-  .release-version {
-    font-size: 18px; font-weight: 800; color: var(--navy-900);
-    font-family: Consolas, Monaco, monospace;
-  }
-  .release-badge {
-    font-size: 11px; padding: 2px 8px; border-radius: 4px;
-    background: var(--gold-500); color: white; font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  .release-badge.latest { background: var(--gold-500); }
-  .release-badge.major { background: var(--danger); }
-  .release-date { font-size: 12px; color: var(--text-subtle); margin-left: auto; }
-  .release ul { list-style: none; padding: 0; }
-  .release li {
-    font-size: 13.5px; color: var(--text-muted);
-    padding: 4px 0 4px 18px; position: relative; line-height: 1.6;
-  }
-  .release li::before {
-    content: "▸"; position: absolute; left: 0; color: var(--navy-600);
-    font-size: 11px; top: 6px;
-  }
-  .release li.headline {
-    font-weight: 600; color: var(--navy-800);
-  }
-  .release li.headline::before { content: "◆"; color: var(--gold-500); }
-  .release-more {
-    margin-top: 12px; font-size: 13px;
-  }
-
-  /* ============ Quick start ============ */
-  .quickstart-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-    margin-bottom: 40px;
-  }
-  @media (max-width: 800px) { .quickstart-grid { grid-template-columns: 1fr; } }
-  .step {
-    background: white; border: 1px solid var(--border);
-    border-radius: 10px; padding: 24px;
-    position: relative;
-  }
-  .step-num {
-    position: absolute; top: -14px; left: 22px;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--navy-800); color: white;
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 13px;
-    box-shadow: var(--shadow-sm);
-  }
-  .step-title {
-    font-size: 15px; font-weight: 700; color: var(--navy-900);
-    margin: 6px 0 8px;
-  }
-  .step-desc { font-size: 13.5px; color: var(--text-muted); }
-  .step pre {
-    background: #0f2a44; color: #e2e8f0;
-    padding: 12px 14px; border-radius: 6px;
-    margin-top: 12px; overflow-x: auto;
-    font-size: 12.5px; line-height: 1.55;
-  }
-
-  .sysreq {
-    background: white; border: 1px solid var(--border);
-    border-radius: 10px; padding: 24px 28px;
-  }
-  .sysreq h3 {
-    font-size: 15px; font-weight: 700; color: var(--navy-900);
-    margin-bottom: 16px;
-  }
-  .sysreq-table {
-    display: grid; grid-template-columns: 180px 1fr; gap: 10px 20px;
-    font-size: 13.5px;
-  }
-  .sysreq-table dt { color: var(--text-subtle); font-weight: 500; }
-  .sysreq-table dd { color: var(--text); }
-  @media (max-width: 600px) {
-    .sysreq-table { grid-template-columns: 1fr; gap: 4px; }
-    .sysreq-table dt { margin-top: 10px; }
-  }
-
-  /* ============ Download ============ */
-  .download-card {
-    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
-    color: white; border-radius: 14px;
-    padding: 44px 48px;
-    box-shadow: var(--shadow-lg);
-    position: relative; overflow: hidden;
-  }
-  .download-card::before {
-    content: ""; position: absolute;
-    top: -50%; right: -20%; width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(201, 162, 39, 0.18), transparent 65%);
-    pointer-events: none;
-  }
-  .download-card h2 {
-    font-size: 28px; font-weight: 800; margin-bottom: 10px;
-    letter-spacing: -0.4px; position: relative;
-  }
-  .download-card .lede {
-    font-size: 15px; color: rgba(255, 255, 255, 0.78);
-    margin-bottom: 28px; max-width: 620px; position: relative;
-  }
-  .download-actions {
-    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px;
-    position: relative;
-  }
-  .btn-gold {
-    background: var(--gold-500); color: var(--navy-900);
-    font-weight: 700;
-  }
-  .btn-gold:hover {
-    background: var(--gold-400);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(201, 162, 39, 0.35);
-  }
-  .btn-ghost {
-    background: rgba(255, 255, 255, 0.1);
-    color: white; border: 1px solid rgba(255, 255, 255, 0.24);
-  }
-  .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.16);
-    border-color: rgba(255, 255, 255, 0.4);
-  }
-  .download-meta {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-    padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.14);
-    position: relative;
-  }
-  @media (max-width: 700px) {
-    .download-card { padding: 32px 24px; }
-    .download-meta { grid-template-columns: repeat(2, 1fr); }
-  }
-  .meta-label {
-    font-size: 11px; color: rgba(255, 255, 255, 0.55);
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .meta-value {
-    font-size: 14px; color: white; font-weight: 600;
-    font-family: Consolas, Monaco, monospace;
-    word-break: break-all;
-  }
-  .meta-value a { color: var(--gold-400); }
-
-  .notice {
-    margin-top: 20px; padding: 14px 18px;
-    background: rgba(201, 162, 39, 0.12);
-    border-left: 3px solid var(--gold-500);
-    border-radius: 4px;
-    font-size: 13px; color: rgba(255, 255, 255, 0.85);
-    position: relative;
-  }
-
-  /* ============ Citation ============ */
-  .cite-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
-  }
-  @media (max-width: 800px) { .cite-grid { grid-template-columns: 1fr; } }
-  .cite-card {
-    background: white; border: 1px solid var(--border);
-    border-radius: 10px; padding: 24px 28px;
-  }
-  .cite-card h3 {
-    font-size: 15px; font-weight: 700; color: var(--navy-900);
-    margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .cite-card p, .cite-card li {
-    font-size: 13.5px; color: var(--text-muted); line-height: 1.7;
-  }
-  .cite-card ul { padding-left: 20px; }
-  .cite-card pre {
-    background: var(--bg); border: 1px solid var(--border);
-    padding: 12px 14px; border-radius: 6px;
-    margin-top: 10px; overflow-x: auto;
-    font-size: 12.5px; color: var(--navy-900);
-    line-height: 1.6;
-  }
-
-  /* ============ Footer ============ */
-  footer {
-    background: var(--navy-900); color: rgba(255, 255, 255, 0.7);
-    padding: 40px 0 32px; font-size: 13px;
-  }
-  .footer-grid {
-    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px;
-    margin-bottom: 32px;
-  }
-  @media (max-width: 800px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-  footer h4 {
-    color: white; font-size: 13px; font-weight: 700;
-    margin-bottom: 12px; letter-spacing: 0.5px;
-  }
-  footer ul { list-style: none; }
-  footer li { padding: 3px 0; }
-  footer a { color: rgba(255, 255, 255, 0.7); }
-  footer a:hover { color: var(--gold-400); }
-  .footer-bottom {
-    padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    font-size: 12px; color: rgba(255, 255, 255, 0.5);
-  }
-
-  /* ============ Utilities ============ */
-  .mono { font-family: Consolas, Monaco, monospace; }
-  .kbd {
-    display: inline-block; padding: 1px 6px;
-    background: var(--bg); border: 1px solid var(--border-strong);
-    border-bottom-width: 2px; border-radius: 3px;
-    font-family: Consolas, Monaco, monospace; font-size: 12px;
-    color: var(--navy-900);
-  }
-</style>
+<meta name="description" content="FluMutationAnalyzer 是面向流感病毒全基因组序列的 Windows 桌面端分析工具：亚型鉴定、8 节段翻译、335 条位点突变检测、耐药分析、重配来源推断、谱系定位与风险评估，结果可导出 Word / Excel / Markdown 报告。">
+<link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
 
-<!-- ============ Nav ============ -->
-<nav class="topbar">
-  <div class="container nav-inner">
-    <a href="#top" class="brand">
-      <div class="brand-mark">Fm</div>
-      <div class="brand-text">
-        FluMutationAnalyzer
-        <small>v5.0.0 · 赵翔</small>
-      </div>
-    </a>
-    <div class="nav-links">
-      <a href="#features">功能</a>
-      <a href="#screens">截图</a>
-      <a href="#changelog">版本</a>
-      <a href="#quickstart">快速开始</a>
-      <a href="#cite">引用</a>
-      <a href="#download" class="nav-cta">下载</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ============ Hero ============ -->
-<header class="hero" id="top">
-  <div class="container hero-grid">
-    <div>
-      <div class="eyebrow">
-        <span class="dot"></span>
-        Version 5.0.0 · 2026 重大更新
-      </div>
-      <h1 class="hero-title">流感病毒全基因组<br>变异分析工具</h1>
-      <p class="hero-subtitle">
-        从 FASTA 到专业报告，一个桌面端软件覆盖亚型鉴定、突变检测、耐药分析、重配推断与谱系定位。
-      </p>
-      <p class="hero-desc">
-        FluMutationAnalyzer 面向流感监测与防控一线场景，内置 <strong>261+ 关键位点数据库</strong>与 178 种基因配方，
-        支持甲型 H1–H16 × N1–N9 全亚型与 B 型 Victoria/Yamagata，全部计算本地完成，无需上传序列至云端。
-      </p>
-      <div class="hero-cta">
-        <a href="#download" class="btn btn-primary">
-          ⏳ 即将发布 · 敬请期待
-        </a>
-        <a href="#features" class="btn btn-secondary">
-          查看功能详情 →
-        </a>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="stat-num">261+</div>
-          <div class="stat-label">关键位点</div>
-        </div>
-        <div>
-          <div class="stat-num">8</div>
-          <div class="stat-label">基因节段</div>
-        </div>
-        <div>
-          <div class="stat-num">16×9</div>
-          <div class="stat-label">甲型亚型覆盖</div>
-        </div>
-        <div>
-          <div class="stat-num">100%</div>
-          <div class="stat-label">本地离线运行</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="hero-visual">
-      <div class="mock-titlebar">
-        <div class="mock-dot r"></div>
-        <div class="mock-dot y"></div>
-        <div class="mock-dot g"></div>
-        <div class="mock-title">FluMutationAnalyzer — A/H1N1pdm09 · Sample_001.fasta</div>
-      </div>
-      <div class="mock-body">
-        <div class="mock-tabs">
-          <div class="mock-tab active">分析总览</div>
-          <div class="mock-tab">突变位点</div>
-          <div class="mock-tab">耐药</div>
-          <div class="mock-tab">进化树</div>
-          <div class="mock-tab">重配</div>
-        </div>
-        <div class="mock-grid">
-          <div class="mock-card">
-            <div class="mock-card-label">亚型鉴定</div>
-            <div class="mock-card-value">H1N1pdm09</div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-card-label">序列质控</div>
-            <div class="mock-card-value ok">通过 · 96</div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-card-label">关键突变</div>
-            <div class="mock-card-value gold">12 个</div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-card-label">耐药风险</div>
-            <div class="mock-card-value danger">低 · 1 项</div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-card-label">Clade</div>
-            <div class="mock-card-value">6B.1A.5a.2a</div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-card-label">疫苗株匹配</div>
-            <div class="mock-card-value ok">高度匹配</div>
-          </div>
-        </div>
-      </div>
-    </div>
+<header class="masthead">
+  <div class="wrap">
+    <a class="wordmark" href="#">Flu<span>Mutation</span>Analyzer</a>
+    <span class="chip">v5.1.0</span>
+    <nav aria-label="页面导航">
+      <a href="#capabilities">能力</a>
+      <a href="#shots">界面</a>
+      <a href="#method">方法学</a>
+      <a href="#get">获取安装包</a>
+      <a href="#requirements">运行环境</a>
+      <a href="guide.html">使用说明</a>
+      <a href="changelog.html">更新日志</a>
+    </nav>
   </div>
 </header>
 
-<!-- ============ Features ============ -->
-<section id="features">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-eyebrow">Core Capabilities</div>
-      <h2 class="section-title">九大核心分析模块，覆盖流感分子流行病学全链条</h2>
-      <p class="section-desc">
-        从原始序列质控到专业报告导出，每个模块都基于公开的突变位点数据库与代表株参考集，
-        并针对流感监测与防控一线的实际场景做了大量本地化优化。
+<section class="hero">
+  <div class="wrap">
+    <h1>从序列到洞察</h1>
+    <p class="lede">流感病毒全基因组变异分析工具 · Windows 桌面端</p>
+    <p class="desc">
+      输入一份 8 节段 FASTA 基因组序列，自动完成亚型鉴定、各节段翻译、335 条位点的突变检测、
+      耐药分析、选择压力评估、重配来源推断、基因星座完整性评估与谱系定位，
+      并把结果导出为 Word、Excel 或 Markdown 报告。
+    </p>
+    <ul class="facts">
+      <li>甲型 H1–H16 × N1–N9</li>
+      <li>B/Victoria 与 B/Yamagata</li>
+      <li>HA / NA / PB2 / PB1 / PA / NP / M / NS 全部 8 个节段</li>
+      <li>单文件 EXE，免安装</li>
+    </ul>
+    <div class="cta-row">
+      <a id="dl-link" class="btn btn-primary" href="#get" aria-disabled="true">下载链接即将发布</a>
+      <p class="cta-note">
+        如需安装包，请邮件联系
+        <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>。
       </p>
     </div>
+  </div>
+</section>
 
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🔍</div>
-        <div class="feature-title">序列质控</div>
-        <div class="feature-desc">
-          读码框完整性、CDS 起始密码子验证、各节段翻译长度比对，低覆盖 / 截断位点自动标记，输出逐节段评分表。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">overall_score 0-100</span>
-          <span class="feature-tag">四级质控</span>
-        </div>
+<div class="band">
+  <dl class="wrap">
+    <div><dt>335</dt><dd>条位点记录<br>HA 120 / NA 107 / 内部节段 108</dd></div>
+    <div><dt>18</dt><dd>个分析视图<br>从序列质控到谱系定位</dd></div>
+    <div><dt>8</dt><dd>个基因组节段<br>全基因组而非仅 HA/NA</dd></div>
+    <div><dt>3</dt><dd>种报告格式<br>Word / Excel / Markdown</dd></div>
+  </dl>
+</div>
+
+<section id="capabilities">
+  <div class="wrap">
+    <p class="eyebrow">分析能力</p>
+    <h2>十八个视图，覆盖从质控到风险判读的全流程</h2>
+    <p class="section-intro">
+      下列每一项都对应软件里的一个实际视图。单样本与批量样本共用同一套视图，
+      批量分析后群体摘要与时间趋势会自动填充。
+    </p>
+
+    <div class="group">
+      <h3>质控与总览</h3>
+      <div class="cards">
+        <div class="card"><h4>分析总览</h4><p>单样本与批量样本的摘要看板，关键指标一屏收口，点击卡片跳转到对应视图。</p></div>
+        <div class="card"><h4>序列质控</h4><p>读码框完整性、终止密码子与异常截断、各节段翻译长度与预期比较、CDS 起始密码子验证，逐节段给出评分。</p></div>
+        <div class="card"><h4>群体摘要</h4><p>多样本横向汇总与关键突变对比，批量分析完成后自动切换到群体口径。</p></div>
       </div>
+    </div>
 
-      <div class="feature-card">
-        <div class="feature-icon">🧬</div>
-        <div class="feature-title">亚型鉴定</div>
-        <div class="feature-desc">
-          基于 HA/NA 信号肽的 k-mer 预过滤 + PairwiseAligner 精对齐，覆盖 H1–H16 与 N1–N9，罕见亚型保护机制。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">3-mer Jaccard</span>
-          <span class="feature-tag">B 型支持</span>
-        </div>
+    <div class="group">
+      <h3>变异与耐药</h3>
+      <div class="cards">
+        <div class="card"><h4>突变位点总表</h4><p>335 条位点记录，三层风险分级（预警 / 监测 / 基线）与宿主标志分类，每条附功能影响和参考文献。</p></div>
+        <div class="card"><h4>耐药位点</h4><p>NA 抑制剂（奥司他韦、扎那米韦、帕拉米韦）、M2 离子通道、PB2 巴洛沙韦相关位点，含 N3/N7/N8 到 N2 坐标的等效映射。</p></div>
+        <div class="card"><h4>突变位点分类统计</h4><p>按变异类别与宿主标志的分布图表，配基因组浏览器风格的位点图谱。</p></div>
+        <div class="card"><h4>裂解位点</h4><p>HA 裂解位点序列展示与 HPAI / LPAI 判定，按 P1–P5 / P1′–P5′ 标准标注。</p></div>
+        <div class="card"><h4>引物检查</h4><p>引物与目标序列的匹配检查。</p></div>
+        <div class="card"><h4>环形基因组</h4><p>8 个节段的环形视图，可按变异类别筛选显示。</p></div>
+        <div class="card"><h4>突变网络</h4><p>以 phi 系数构建突变共现网络，用图连通分量识别功能模块。</p></div>
       </div>
+    </div>
 
-      <div class="feature-card">
-        <div class="feature-icon">📋</div>
-        <div class="feature-title">突变位点总表</div>
-        <div class="feature-desc">
-          261+ 关键位点（PB2/58 · PB1/27 · PA/33 · HA/68 · NP/15 · NA/48 · M/2 · NS/10），三层风险分级与宿主标志分类。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">🔴 预警</span>
-          <span class="feature-tag">🟠 监测</span>
-          <span class="feature-tag">🟡 基线</span>
-        </div>
+    <div class="group">
+      <h3>进化与谱系</h3>
+      <div class="cards">
+        <div class="card"><h4>进化树</h4><p>骨架树加样本放置的系统发育视图，支持按分支与性状着色，可导出 PNG / SVG / PDF / HTML。</p></div>
+        <div class="card"><h4>谱系定位</h4><p>基于 Nextclade 数据集与 IQ-TREE 2 最大似然法的 clade 分配；不支持的亚型自动隐藏该视图。</p></div>
+        <div class="card"><h4>重配分析</h4><p>8 个节段的来源推断与重配模式识别，逐节段标注最近代表株来源。</p></div>
+        <div class="card"><h4>基因星座</h4><p>已知基因星座完整度评估，列出已匹配的标志突变与缺失的关键突变。</p></div>
+        <div class="card"><h4>时间趋势</h4><p>按采样时间展开的趋势分析，用于批量样本的时间序列观察。</p></div>
       </div>
+    </div>
 
-      <div class="feature-card">
-        <div class="feature-icon">💊</div>
-        <div class="feature-title">耐药位点分析</div>
-        <div class="feature-desc">
-          NA 抑制剂（奥司他韦 / 扎那米韦 / 帕拉米韦）、M2 离子通道、PB2 巴洛沙韦相关位点，B 型 NA 特异性耐药自动识别。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">H275Y</span>
-          <span class="feature-tag">S31N</span>
-          <span class="feature-tag">等效位点映射</span>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">基因组可视化</div>
-        <div class="feature-desc">
-          基因组浏览器风格位点图谱、圆角胶囊轨道、功能区半透明色块、L 形三段式智能引线消除标签重叠。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">matplotlib</span>
-          <span class="feature-tag">QToolTip</span>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🔀</div>
-        <div class="feature-title">重配分析</div>
-        <div class="feature-desc">
-          8 片段全基因组 BLAST 比对 16 株全球代表株，滑动窗口 + 迭代分配，178 种已知配方 (Genotype) 自动识别。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">recipe_db 360KB</span>
-          <span class="feature-tag">NC 兼容性评分</span>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">⚖️</div>
-        <div class="feature-title">选择压力评估</div>
-        <div class="feature-desc">
-          简化版基于 H3 HA 功能区突变密度与 Bush 1999 历史基准对比；FUBAR 版对接 HyPhy，支持真 dN/dS 计算。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">Nei-Gojobori</span>
-          <span class="feature-tag">FUBAR (HyPhy)</span>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🌲</div>
-        <div class="feature-title">谱系定位</div>
-        <div class="feature-desc">
-          IQ-TREE 2 最大似然建树 + Nextclade v3 双引擎，H5 覆盖 2.3.4.4b/e/g/h 等 18 个 clade，纯 Python NJ 法作为零依赖回退。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">H5Nx · H7N9 · H3N2</span>
-          <span class="feature-tag">H1N1pdm · B 型</span>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">📑</div>
-        <div class="feature-title">专业报告导出</div>
-        <div class="feature-desc">
-          一键生成含封面页、执行摘要、嵌入图表与参考文献附录的 Word / Excel / Markdown 报告，支持单样本与批量模式。
-        </div>
-        <div class="feature-tags">
-          <span class="feature-tag">.docx</span>
-          <span class="feature-tag">.xlsx</span>
-          <span class="feature-tag">.md</span>
-        </div>
+    <div class="group">
+      <h3>风险与交付</h3>
+      <div class="cards">
+        <div class="card"><h4>综合风险评估</h4><p>致病性、人畜适应、配方新颖度、宿主四个维度的评分，并给出临界态提示。</p></div>
+        <div class="card"><h4>选择压力</h4><p>各功能区突变密度与历史基准比较，内置 Nei–Gojobori 计数与 Fisher 精确检验。</p></div>
+        <div class="card"><h4>疫苗株对比</h4><p>与推荐疫苗株的氨基酸差异，按 HA1 功能区标注差异等级。</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ Screenshots ============ -->
-<section id="screens" class="alt">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-eyebrow">Interface Preview</div>
-      <h2 class="section-title">界面截图</h2>
-      <p class="section-desc">
-        以下为软件主界面与关键分析模块的真实运行截图（v5.0.0，119 样本批量分析场景）。
-      </p>
+<section id="shots">
+  <div class="wrap">
+    <p class="eyebrow">界面</p>
+    <h2>真实运行截图</h2>
+    <p class="section-intro">
+      以下截图取自 v5.1.0 实机运行，样本为 A/Washington/2025 H3N2 全基因组 FASTA（8 节段完整）。
+      未做任何美化或重绘，界面即为你会看到的界面。
+    </p>
+    <div class="shots">
+      <figure class="shot wide">
+        <img src="assets/screens/01-overview.png" width="1400" height="765" loading="lazy"
+             alt="分析总览视图：样本信息、异常位点计数、综合风险评分、耐药标记与关键发现卡片">
+        <figcaption><b>分析总览</b>关键指标看板，点击卡片跳转到对应详情视图。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/02-mutation-table.png" width="1400" height="765" loading="lazy"
+             alt="突变位点总表视图：逐条列出检出的位点及其风险等级与功能影响">
+        <figcaption><b>突变位点总表</b>逐条列出检出位点、风险分级与功能影响。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/03-charts.png" width="1400" height="765" loading="lazy"
+             alt="突变位点分类统计视图：按功能分类的异常位点数量横向条形图">
+        <figcaption><b>突变位点分类统计</b>按功能分类统计异常位点数量。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/04-reassortment.png" width="1400" height="765" loading="lazy"
+             alt="重配分析视图：八个节段的来源株、家系、同源度与一致性状态表">
+        <figcaption><b>重配分析</b>逐节段给出来源株、家系与同源度。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/05-tree-h3n2.png" width="1400" height="765" loading="lazy"
+             alt="进化树视图：IQ-TREE 最大似然法构建的 H3N2 HA 进化树，120 条骨架参考株加 1 条样本">
+        <figcaption><b>进化树</b>IQ-TREE 最大似然法，120 条骨架参考株 + 本样本。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/06-selection.png" width="1400" height="765" loading="lazy"
+             alt="选择压力视图：各功能区突变密度与基准比较">
+        <figcaption><b>选择压力</b>功能区突变密度与历史基准比较。</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screens/07-constellation.png" width="1400" height="765" loading="lazy"
+             alt="基因星座视图：已知基因星座标志突变的匹配与缺失情况">
+        <figcaption><b>基因星座</b>已知星座标志突变的匹配与缺失情况。</figcaption>
+      </figure>
     </div>
+  </div>
+</section>
 
-    <div class="screens-grid">
-      <div class="screen-card">
-        <div class="screen-frame">
-          <img src="screenshots/01-overview.png" alt="FluMutationAnalyzer 分析总览仪表盘：8 张可点击卡片展示样本数、异常位点、亚型、重配信号、质控等关键指标">
-        </div>
-        <div class="screen-caption">
-          <div class="screen-caption-title">① 分析总览仪表盘</div>
-          <div class="screen-caption-desc">v4.7.0 引入的导航式总览，点击任意卡片跳转到对应详情 Tab</div>
-        </div>
+<section id="method">
+  <div class="wrap">
+    <p class="eyebrow">方法学说明</p>
+    <h2>结果是怎么算出来的，以及没算什么</h2>
+    <p class="section-intro">
+      分析工具的可信度来自方法的透明。以下几条明确说明每个环节的实际实现，
+      避免把"检测到了某个工具"读成"用了这个工具出数"。
+    </p>
+    <div class="method">
+      <div class="method-item">
+        <h4>选择压力：内置实现，未运行 HyPhy FUBAR</h4>
+        <p>dN/dS 相关判读由内置的 <strong>Nei–Gojobori 计数 + Fisher 精确检验</strong>完成。<strong>未运行 HyPhy FUBAR</strong>，软件界面与导出报告中都已明示这一点；即使本机装有 HyPhy，也不会自动改用它出数。</p>
       </div>
-
-      <div class="screen-card">
-        <div class="screen-frame">
-          <img src="screenshots/02-mutation.png" alt="FluMutationAnalyzer 突变位点总表：按预警等级排序的位点表格，含参考/实际氨基酸、功能影响、宿主标志与 DMS 效应列">
-        </div>
-        <div class="screen-caption">
-          <div class="screen-caption-title">② 突变位点总表</div>
-          <div class="screen-caption-desc">三级预警分级排序，含参考/实际氨基酸、功能影响、宿主标志与 DMS 效应列</div>
-        </div>
+      <div class="method-item">
+        <h4>重配与基因型分类：不依赖 BLAST+</h4>
+        <p>节段来源判断走 <strong>Biopython 序列比对 + 滑动窗口同源比对与迭代分配</strong>，不需要额外安装 BLAST+，也不产生 BLAST 输出文件。</p>
       </div>
-
-      <div class="screen-card">
-        <div class="screen-frame">
-          <img src="screenshots/03-phylo.png" alt="FluMutationAnalyzer 进化树：IQ-TREE 最大似然法建树，120 骨架参考株加 119 样本，按 Clade 着色">
-        </div>
-        <div class="screen-caption">
-          <div class="screen-caption-title">③ 谱系定位</div>
-          <div class="screen-caption-desc">Nextclade 策略定根，backbone 骨架代表株 + 样本嵌入</div>
-        </div>
+      <div class="method-item">
+        <h4>外部引擎全部可选，缺失自动降级</h4>
+        <p>IQ-TREE 2 用于最大似然建树，Nextclade CLI 用于谱系定位，MAFFT 用于多序列比对（随包捆绑）。任一缺失时回退到内置实现并在界面上说明回退原因，<strong>不阻塞基础分析</strong>。</p>
       </div>
-
-      <div class="screen-card">
-        <div class="screen-frame">
-          <img src="screenshots/04-report.png" alt="FluMutationAnalyzer 报告导出对话框：支持 PDF、Markdown、Word、Excel 与专业报告五种格式，可批量合并导出">
-        </div>
-        <div class="screen-caption">
-          <div class="screen-caption-title">④ 报告导出</div>
-          <div class="screen-caption-desc">PDF / Markdown / Word / Excel / 专业报告五格式，支持批量合并为单文件</div>
-        </div>
+      <div class="method-item">
+        <h4>结果有五种状态，"没读到"不等于"异常"</h4>
+        <p>每条位点结果取 <code>confirmed</code> / <code>unknown</code> / <code>wildtype</code> / <code>nocall</code> / <code>info</code> 五态之一。<strong>「这个位点没读到」(nocall) 不计入异常数、不按风险着色</strong>，与「读到了但意义未知」(unknown) 分开呈现。</p>
+      </div>
+      <div class="method-item">
+        <h4>待分析序列不出本机</h4>
+        <p>输入的 FASTA 序列全程在本机处理，<strong>软件不向任何服务上传序列</strong>。唯一的网络行为是 3D 结构视图按需从 RCSB / EBI 拉取公开结构文件，且优先使用本地缓存。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ Changelog ============ -->
-<section id="changelog">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-eyebrow">Release History</div>
-      <h2 class="section-title">版本历史</h2>
-      <p class="section-desc">
-        FluMutationAnalyzer 采用持续迭代模式，从 v4.5 系列到 v5.0.0 累计发布 20+ 版本。以下为近期主要更新。
-      </p>
-    </div>
+<section id="get">
+  <div class="wrap">
+    <p class="eyebrow">获取安装包</p>
+    <h2>下载链接即将发布</h2>
+    <p class="section-intro">
+      当前不提供直链。如需安装包，请邮件联系
+      <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>，
+      注明单位与使用场景。以下是本版本安装包的完整规格与校验值，收到文件后可据此自查完整性。
+    </p>
 
-    <div class="changelog-list">
-
-      <div class="release">
-        <div class="release-head">
-          <div class="release-version">v5.0.0</div>
-          <span class="release-badge latest">最新</span>
-          <span class="release-badge major">重大更新</span>
-          <div class="release-date">2026</div>
-        </div>
-        <ul>
-          <li class="headline">全模块代码质量审查与优化</li>
-          <li>亚型检测：修复 H7N9 信号肽 MNTQIL 误判、H15N9 NTQ 子串误伤，新增罕见亚型保护机制</li>
-          <li>突变分析：修复耐药级别三级氨基酸匹配、DMS 回退查询注释（命中率 0% → 88%+）</li>
-          <li>进化树：补齐 H5N1/H7N9/H9N2 骨架数据链路、H7N9 谱系定位恢复、标签防堆叠</li>
-          <li>进化指数：修复读码框错位 bug（锚点对齐替代盲砍信号肽）</li>
-          <li>重配检测：亚型感知过滤、_fast_identity 两阶段搜索、match_cache 键修复</li>
-          <li>序列质控：P0-P2 共 16 项算法修复 + 单元测试补充</li>
-          <li>参考数据库：替换 H3N2 错误节段、恢复被丢弃参考文件、H3N2 WI22 HA 修正</li>
-          <li>性能优化：重配 n_windows 3 → 1 加速 3×，_guess_segment NA/NP 区分消除 15% 回退惩罚</li>
-          <li>批量分析：修复 60% 卡住问题（stderr 管道死锁）</li>
-          <li>导出增强：Word/Excel 新增 DMS 注释列</li>
-        </ul>
-      </div>
-
-      <div class="release">
-        <div class="release-head">
-          <div class="release-version">v4.9.0</div>
-          <div class="release-date">2026</div>
-        </div>
-        <ul>
-          <li class="headline">进化树模块全面修复与优化</li>
-          <li>修复序列名称截断导致去重覆盖问题；批量模式下点击样本导致进化树重建为单样本树的问题</li>
-          <li>修复 IQ-TREE 工具路径未传递导致降级 biopython_nj；-m AUTO 参数不兼容（改为 GTR）</li>
-          <li>从 Nextclade tree.json 重建骨架代表株序列，使用 backbone.newick 作为 IQ-TREE 起始树</li>
-          <li>改为 Nextclade 策略定根（backbone 根节点 outgroup）</li>
-          <li>添加建树期间动态进度提示与进度条，建树完成后自动切换到进化树 Tab</li>
-        </ul>
-      </div>
-
-      <div class="release">
-        <div class="release-head">
-          <div class="release-version">v4.8.1</div>
-          <div class="release-date">2026</div>
-        </div>
-        <ul>
-          <li class="headline">全面代码审查 — 修复 33 个问题</li>
-          <li>修复 25 个模块级问题（B 型裂解位点假亚型、dN/dS 路径枚举、信号肽偏移等）</li>
-          <li>突变位点总表 8 项优化：清除 15 个 YAML 重复条目，N9 274Y/275Y 冲突修复</li>
-          <li>删除 ANTIGENIC_SITES_CORE 死代码 53 行，生成器新增去重校验机制</li>
-          <li>vaccine_db 文件级缓存 + 信号肽长度字典查表 + 去重 key 增强</li>
-        </ul>
-      </div>
-
-      <div class="release">
-        <div class="release-head">
-          <div class="release-version">v4.8.0</div>
-          <div class="release-date">2026</div>
-        </div>
-        <ul>
-          <li class="headline">架构：MainWindow God Class 渐进式拆分 Phase 1-2</li>
-          <li>新增 gui/worker_manager.py 统一管理 7 个 QThread worker 生命周期</li>
-          <li>新增 gui/cache_manager.py（BoundedCache LRU）管理 4 个分析结果缓存</li>
-          <li>性能：亚型检测 O(n×m×L²) → k-mer 预过滤优化，模块级 PairwiseAligner 复用</li>
-          <li>工程：ruff lint 新增 bugbear(B) + pyupgrade(UP) 规则，pre-commit 升级至 v0.9.4</li>
-          <li>统一抗原位点定义源（mutation_checker.py Single Source of Truth），dN/dS 实现 Nei-Gojobori 多核苷酸路径枚举</li>
-        </ul>
-      </div>
-
-      <div class="release">
-        <div class="release-head">
-          <div class="release-version">v4.7.0</div>
-          <div class="release-date">2026</div>
-        </div>
-        <ul>
-          <li class="headline">三大 GUI 增强模块</li>
-          <li>分析总览仪表盘（gui/overview_dashboard.py）：8 张可点击卡片，展示关键指标并跳转到对应详情 Tab</li>
-          <li>专业报告导出器（export/report_generator.py）：封面页 + 执行摘要 + 嵌入图表 + 参考文献附录</li>
-          <li>导出对话框新增「📑 导出专业报告」按钮，支持单样本与批量模式</li>
-          <li>统一 matplotlib + QToolTip 渲染路径（无 Plotly/QWebEngine 依赖）</li>
-        </ul>
-      </div>
-
-    </div>
-
-    <div class="release-more">
-      <a href="#" id="changelog-more-link">查看完整更新日志（自 v3.8 起 60+ 版本）→</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============ Quick start ============ -->
-<section id="quickstart" class="alt">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-eyebrow">Get Started</div>
-      <h2 class="section-title">快速开始</h2>
-      <p class="section-desc">
-        三步即可开始分析。软件为单文件绿色 EXE，无需安装 Python 或配置环境变量。
-      </p>
-    </div>
-
-    <div class="quickstart-grid">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-title">下载并运行</div>
-        <div class="step-desc">
-          从下方"下载"区获取 <code>FluMutationAnalyzer_v5.0.0.exe</code>，双击运行。首次启动会自动释放 Nextclade 数据集到本地 AppData。
-        </div>
-        <pre>FluMutationAnalyzer_v5.0.0.exe
-# 大小 ~91 MB · 无需安装</pre>
-      </div>
-
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-title">导入 FASTA 序列</div>
-        <div class="step-desc">
-          点击"打开文件"或直接拖拽 FASTA 文件到主窗口。支持单样本模式与批量模式（拖入多个文件即自动切换到批量）。
-        </div>
-        <pre>Sample_001.fasta
-Sample_002.fasta
-... (拖拽即可)</pre>
-      </div>
-
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-title">分析与导出</div>
-        <div class="step-desc">
-          软件自动完成亚型鉴定 → 突变检测 → 耐药 → 重配 → 谱系定位全流程。分析完成后在"导出"面板生成 Word/Excel/Markdown 报告。
-        </div>
-        <pre>报告包含：
-· 封面 + 执行摘要
-· 关键位点表格
-· 参考文献附录</pre>
-      </div>
-    </div>
-
-    <div class="sysreq">
-      <h3>系统要求与外部工具</h3>
-      <dl class="sysreq-table">
-        <dt>操作系统</dt>
-        <dd>Windows 10 / 11（64 位）· macOS 与 Linux 需从源码运行</dd>
-        <dt>内存</dt>
-        <dd>≥ 4 GB（批量 30+ 样本建议 8 GB）</dd>
-        <dt>磁盘</dt>
-        <dd>≥ 500 MB 可用空间（EXE 91 MB + Nextclade 数据集 + 参考库）</dd>
-        <dt>Python（可选）</dt>
-        <dd>≥ 3.10 · 依赖 PySide6 ≥ 6.5、Biopython ≥ 1.81、matplotlib ≥ 3.7、python-docx ≥ 1.1、openpyxl ≥ 3.1</dd>
-        <dt>IQ-TREE 2（可选）</dt>
-        <dd>≥ v2.2.0 · 用于最大似然进化树与 ASR；缺失时回退到纯 Python NJ 法</dd>
-        <dt>Nextclade CLI（可选）</dt>
-        <dd>v3.x · 用于精准谱系定位；EXE 已内置数据集，缺失时使用纯 Python 引擎</dd>
-        <dt>HyPhy（可选）</dt>
-        <dd>≥ v2.5 · 用于 FUBAR 真 dN/dS 选择压力分析；缺失时使用简化版</dd>
-        <dt>MAFFT（可选）</dt>
-        <dd>v7.x · 多序列比对预处理；IQ-TREE 内置比对逻辑，极少需要</dd>
-      </dl>
-    </div>
-  </div>
-</section>
-
-<!-- ============ Download ============ -->
-<section id="download">
-  <div class="container">
-    <div class="download-card">
-      <h2>即将发布 · 敬请期待</h2>
-      <p class="lede">
-        当前最新版本 <strong>v5.0.0</strong> 已完成全部功能开发与代码质量审查，正在准备公开发布。
-        Windows EXE、源代码仓库与培训手册将在权属确认后陆续上线。如需提前体验或合作试用，请通过页脚联系方式与作者沟通。
-      </p>
-
-      <div class="download-actions">
-        <span class="btn btn-gold" style="opacity:0.6; cursor:not-allowed;">
-          ⏳ Windows EXE · 敬请期待
-        </span>
-        <span class="btn btn-ghost" style="opacity:0.6; cursor:not-allowed;">
-          ⏳ 源代码 · 敬请期待
-        </span>
-        <span class="btn btn-ghost" style="opacity:0.6; cursor:not-allowed;">
-          ⏳ 培训手册 · 敬请期待
-        </span>
-      </div>
-
-      <div class="download-meta">
-        <div>
-          <div class="meta-label">版本号</div>
-          <div class="meta-value">v5.0.0</div>
-        </div>
-        <div>
-          <div class="meta-label">发布日期</div>
-          <div class="meta-value">即将公布</div>
-        </div>
-        <div>
-          <div class="meta-label">SHA256</div>
-          <div class="meta-value" id="sha256-value">发布后提供</div>
-        </div>
-        <div>
-          <div class="meta-label">仓库</div>
-          <div class="meta-value">即将上线</div>
-        </div>
-      </div>
+    <div class="getbox">
+      <table class="spec">
+        <caption class="visually-hidden">安装包规格</caption>
+        <tbody>
+          <tr><th scope="row">文件名</th><td class="mono">FluMutationAnalyzer_v5.1.0.exe</td></tr>
+          <tr><th scope="row">版本</th><td>5.1.0</td></tr>
+          <tr><th scope="row">平台</th><td>Windows 10 / 11 · x64（无 macOS / Linux 版本）</td></tr>
+          <tr><th scope="row">体积</th><td>311,905,074 字节（约 297 MiB）</td></tr>
+          <tr><th scope="row">SHA-256</th><td class="mono">e3b7944f76a061e3299b306125cf9d0c69f91dfa88a5cef545f5d0882776ad9d</td></tr>
+          <tr><th scope="row">安装方式</th><td>单文件可执行程序，免安装，双击运行</td></tr>
+        </tbody>
+      </table>
 
       <div class="notice">
-        <strong>📌 发布状态：</strong>v5.0.0 已完成全模块代码质量审查（亚型检测、突变分析、进化树、
-        重配、序列质控等全面修复），功能稳定可用。公开发布正在准备中，下载链接与源代码仓库将在
-        权属确认后上线。关注本页面获取最新发布动态。
+        <p><strong>安装包未做代码签名。</strong>首次运行时 Windows SmartScreen 可能弹出「Windows 已保护你的电脑」，这是未签名程序的正常提示，不代表文件被篡改：点击「更多信息」→「仍要运行」即可。部分杀毒软件也可能对 PyInstaller 单文件可执行程序报可疑；如单位有终端管控，请先走信息安全报备流程。</p>
+      </div>
+      <div class="notice">
+        <p><strong>文件属性中不含版本信息。</strong>右键「属性 → 详细信息」看不到版本号，请以文件名 <code>FluMutationAnalyzer_v5.1.0.exe</code> 和上表的 SHA-256 为准判断版本与完整性。</p>
+      </div>
+      <div class="notice">
+        <p><strong>校验方法：</strong>在文件所在目录打开 PowerShell 执行
+        <code>Get-FileHash .\FluMutationAnalyzer_v5.1.0.exe -Algorithm SHA256</code>，
+        结果应与上表逐字符一致。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ Citation ============ -->
-<section id="cite" class="alt">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-eyebrow">Citation & Data Sources</div>
-      <h2 class="section-title">引用与数据来源</h2>
-      <p class="section-desc">
-        如在科研工作中使用本软件，建议按下述格式引用；软件内置的位点数据库与参考株来自以下公开资源。
-      </p>
-    </div>
-
-    <div class="cite-grid">
-      <div class="cite-card">
-        <h3>📚 推荐引用格式</h3>
-        <p>如需在论文或报告中引用本软件，建议使用以下格式：</p>
-        <pre>赵翔. FluMutationAnalyzer: 流感病毒全基因组变异
-分析工具 [计算机程序]. 版本 5.0.0. 2026.</pre>
-        <p style="margin-top:10px;">英文引用：</p>
-        <pre>Zhao X. FluMutationAnalyzer: A Desktop Tool for
-Influenza Virus Whole-Genome Mutation Analysis
-[Computer software]. Version 5.0.0. 2026.</pre>
-      </div>
-
-      <div class="cite-card">
-        <h3>🗄️ 数据来源与致谢</h3>
-        <ul>
-          <li><strong>突变位点数据库</strong>：整合自 IRD Influenza Research Database、NCBI FluDB、WHO GISRS 年度报告与 100+ 篇同行评议文献</li>
-          <li><strong>参考株集合</strong>：Nextclade v3 官方数据集（H5N1 / H3N2 / H1N1pdm / B 型），GISAID 致谢编号见软件"关于"面板</li>
-          <li><strong>基因配方库</strong>：178 种已知 Genotype 来自 GenoFLU 与文献整理（recipe_db.json，360 KB）</li>
-          <li><strong>选择压力基准</strong>：H3 HA 功能区历史突变密度参照 Bush 1999 及后续更新</li>
-          <li><strong>外部工具</strong>：IQ-TREE 2 (Nguyen et al.)、Nextclade (Aksamentov et al.)、HyPhy (Pond et al.)、MAFFT (Katoh & Standley)</li>
-        </ul>
-        <p style="margin-top:12px; font-size:12.5px; color:var(--text-subtle);">
-          本软件不上传任何用户序列至外部服务器，全部计算在本地完成，符合 GISAID 数据使用条款。
-        </p>
-      </div>
-    </div>
+<section id="requirements">
+  <div class="wrap">
+    <p class="eyebrow">运行环境</p>
+    <h2>需要什么，不需要什么</h2>
+    <dl class="reqs">
+      <div class="req"><dt>操作系统</dt><dd>Windows 10 / 11（x64）</dd></div>
+      <div class="req"><dt>内存</dt><dd>≥ 4GB；批量分析建议 8GB 以上</dd></div>
+      <div class="req"><dt>安装</dt><dd>免安装，单文件 EXE 直接运行</dd></div>
+      <div class="req"><dt>外部工具</dt><dd>全部可选。IQ-TREE 2 / Nextclade CLI / MAFFT 缺失时自动降级</dd></div>
+      <div class="req"><dt>网络</dt><dd>基础分析无需联网</dd></div>
+      <div class="req"><dt>从源码运行</dt><dd>Python 3.10+，<code>pip install -r requirements.txt</code> 后 <code>python main.py</code></dd></div>
+    </dl>
   </div>
 </section>
 
-<!-- ============ Footer ============ -->
 <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <h4>FluMutationAnalyzer</h4>
-        <p style="font-size: 13px; line-height: 1.7; max-width: 320px;">
-          面向流感监测与防控一线场景的桌面端全基因组变异分析工具。
-          由赵翔独立开发与维护。
-        </p>
-      </div>
-      <div>
-        <h4>产品</h4>
-        <ul>
-          <li><a href="#features">功能特性</a></li>
-          <li><a href="#screens">界面截图</a></li>
-          <li><a href="#changelog">版本历史</a></li>
-          <li><a href="#download">下载</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>资源</h4>
-        <ul>
-          <li><a href="#quickstart">快速开始</a></li>
-          <li><span style="opacity:0.55;">培训手册（即将上线）</span></li>
-          <li><span style="opacity:0.55;">GitHub 仓库（即将上线）</span></li>
-          <li><a href="#cite">引用格式</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>联系</h4>
-        <ul>
-          <li>开发者：赵翔</li>
-          <li>方向：生物信息学</li>
-          <li><a href="#" id="footer-email">邮箱（待填写）</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div>© 2026 赵翔 · FluMutationAnalyzer v5.0.0</div>
-      <div>
-        本软件仅供科研与公共卫生监测使用 · 数据来源致谢 GISAID / Nextclade / IRD
-      </div>
-    </div>
+  <div class="wrap">
+    <span class="sig">国家流感中心 · 赵翔</span>
+    <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>
+    <span>FluMutationAnalyzer v5.1.0</span>
+    <p class="local-note">
+      本页面是软件介绍，不提供在线分析。所有计算在使用者本机完成，待分析序列不上传任何服务。
+    </p>
   </div>
 </footer>
-
-<script>
-  // 平滑滚动 + 当前区段高亮（简单实现，不依赖任何库）
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-
-  // 占位链接：点击提示发布状态
-  ['footer-email', 'changelog-more-link'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('click', e => {
-        e.preventDefault();
-        alert('FluMutationAnalyzer v5.0.0 正在准备公开发布。\n\n' +
-              '下载链接、源代码仓库、培训手册与完整更新日志将在权属确认后陆续上线。\n' +
-              '如需提前体验或合作试用，请联系作者。');
-      });
-    }
-  });
-</script>
 
 </body>
 </html>
