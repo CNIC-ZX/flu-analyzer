@@ -12,7 +12,7 @@
 <header class="masthead">
   <div class="wrap">
     <a class="wordmark" href="index.html">Flu<span>Mutation</span>Analyzer</a>
-    <span class="chip">v5.1.0</span>
+    <span class="chip">v5.2.0</span>
     <nav aria-label="页面导航">
       <a href="index.html">介绍</a>
       <a href="index.html#capabilities">能力</a>
@@ -53,9 +53,9 @@ AGCTTA...（核苷酸序列）
     <h2 id="steps">二、五步跑完一个样本</h2>
     <ol class="steps">
       <li><strong>打开文件</strong>：点工具栏「📂 打开」，或按 <kbd>Ctrl</kbd> + <kbd>O</kbd>；也可以直接把 FASTA 拖到窗口里。</li>
-      <li><strong>等自动分析跑完</strong>：软件依次完成亚型识别 → 8 节段翻译 → 位点比对 → 耐药与宿主适应判读 → 重配来源推断 → 进化树构建与谱系定位。工具栏右侧显示「✅ 全部分析完成」即为结束。</li>
-      <li><strong>看「分析总览」</strong>：样本信息、异常位点数、综合风险评分、耐药标记与关键发现都在这一屏。点卡片会跳到对应的详情视图。</li>
-      <li><strong>逐个视图核对</strong>：突变位点总表看具体替换，重配分析看节段来源，进化树看它落在哪个分支。</li>
+      <li><strong>等自动分析跑完</strong>：软件依次完成亚型识别 → 8 节段翻译 → 位点比对 → 耐药判读 → 谱系定位。进化树不自动构建，需要时在树页签点「建树」才跑。工具栏右侧显示「✅ 全部分析完成」即为结束。</li>
+      <li><strong>看「分析总览」</strong>：样本信息、异常位点数、耐药标记与关键发现都在这一屏。点卡片会跳到对应的详情视图。</li>
+      <li><strong>逐个视图核对</strong>：突变位点总表看具体替换，谱系定位看它落在哪个 clade，进化树（点「建树」后）看它落在哪个分支。</li>
       <li><strong>导出报告</strong>：点「📤 导出」或用 <kbd>Ctrl</kbd> + <kbd>M</kbd> / <kbd>D</kbd> / <kbd>E</kbd> 出 Markdown / Word / Excel。</li>
     </ol>
 
@@ -75,13 +75,49 @@ AGCTTA...（核苷酸序列）
     <h2 id="states">四、结果怎么读：五种状态</h2>
     <p>每条位点结果都带一个状态。<strong>最关键的一条是：「没读到」不是「读到了异常」。</strong></p>
     <ul>
-      <li><code>confirmed</code> —— 确认存在的替换，会进入异常统计与风险判读。</li>
+      <li><code>confirmed</code> —— 确认存在的替换，会进入异常统计。</li>
       <li><code>unknown</code> —— 读到了替换，但意义尚不明确。同样是发现，但配色与措辞与前者不同。</li>
       <li><code>wildtype</code> —— 读到了，与参考一致，不是发现。</li>
-      <li><code>nocall</code> —— <strong>这个位点根本没读到</strong>（覆盖不足、缺节段、序列截断）。它不计入异常数，也不会被染成风险色。</li>
+      <li><code>nocall</code> —— <strong>这个位点根本没读到</strong>（覆盖不足、缺节段、序列截断）。它不计入异常数，也不会按发现着色。</li>
       <li><code>info</code> —— 提示性条目，本身不对应某个位点。</li>
     </ul>
     <p>所以看到某个位点"没报"，先分清是<strong>读到了野生型</strong>还是<strong>压根没读到</strong>——这两件事在报告里含义完全不同。</p>
+
+    <h3 id="labels">结果与报告里的两类标注</h3>
+    <p>除了状态，报告和界面上还可能出现两种前缀标注。它们都<strong>只说明这条结果的可信度，不改变检出</strong>：</p>
+    <ul>
+      <li><code>⚠️ 出处未确证</code> / <code>⚠️ 出处存疑</code> —— 出现在参考文献行末尾，针对的是
+        <strong>引用</strong>而不是位点：前者=在 PubMed 与 Crossref 里没能把这条引用认定成某篇已发表文献；
+        后者=多路检索（题名、作者+年份+期刊、卷页坐标当年及前后一年）全部落空，高度疑似虚构。
+        两种都只标注、不删除，位点照常检出。</li>
+      <li><code>ⓘ 历史位点</code> —— 出现在「功能影响」列，针对的是<strong>这一条突变</strong>：
+        该位点的参考残基至今对齐，但文献记录的替换在 2015-2026 年的分层语料里一次都没测到，
+        标注里会给出语料条数与该位置当前的主要残基占比。带这个标注的 <code>unknown</code>
+        多半是该位点在近年流行株里的自然多态，是否为新演化要结合亚型判断。</li>
+    </ul>
+    <p>两类标注都会随引用行/功能影响列进入界面、Markdown、Word 与 PDF 报告；
+      图例目前附在 Markdown 报告的参考文献小节末尾，导出去掉界面也能看懂。</p>
+
+    <h3 id="majority">还有第三种情况，它跟前两类不一样：会改变检出</h3>
+    <p>上面两类标注都只加说明、不动判定。下面这一类<strong>会</strong>，所以单独讲清楚，不混进"标注"里：</p>
+    <p>位点表里有极少数行，文献写的"参考残基"在 2026-09 审计所用的分层语料
+      （GenBank 按亚型 × 年代现拉：2015-2019 / 2020-2023 / 2024-2026）里<strong>一次都没有出现</strong>，
+      而它被标成"突变"的那个残基恰恰是<strong>该位点的众数</strong>（≥50%）。对这种行，
+      "样本读到了它"不再携带任何信息 —— 实测<strong>每个乙型流感样本会因此在 5 个 HA 位点和 1 个 NA 位点上
+      各多出一条红色「确诊」，平均约 4.7 条/样本</strong>（60 条真实 B 型 HA 序列产出 284 条）。</p>
+    <p>这类残基现在<strong>不再作为确诊突变报告</strong>，改为在对应节段末尾汇成一条 <code>info</code>
+      说明，逐项列出被降级的位点、语料频率与样本量，报告末尾另附图例。三条边界：</p>
+    <ul>
+      <li>它<strong>不等于</strong>"这个样本没带那个残基"，也不等于"该位点没有变异"；位点本身仍留在表里，
+        等它的参考残基被真正修正后会自动恢复报告。</li>
+      <li>清单由审计数据生成、可复现（<code>mutation/majority_residue_sites.json</code>），
+        不是手工名单；入选要同时满足五条判据，逐条都带语料证据。</li>
+      <li><strong>只适用于 HA/NA 表面蛋白的抗原/结构类位点。</strong>内部节段的适应性标志
+        （如 PB2 627K、PB2 89V、PA 295P、NS1 42S）即使在人群里很常见也<strong>照常报告</strong> ——
+        对那些位点，"样本带着它"本身就是结论；<strong>耐药位点更不受影响</strong>
+        （它们 0% 检出才是正常状态）。把这条规则一刀切套到所有位点上，
+        会把"报得多"的毛病换成"报不出"的毛病，所以我们没有这么做。</li>
+    </ul>
 
     <h2 id="batch">五、批量分析</h2>
     <ul>
@@ -98,7 +134,7 @@ AGCTTA...（核苷酸序列）
       <li><strong>Nextclade CLI</strong> —— 谱系定位。缺失时使用内置突变匹配分类器。</li>
       <li><strong>MAFFT</strong> —— 多序列比对，已随包捆绑。</li>
     </ul>
-    <p>选择压力页显示的 dN/dS 类数字来自<strong>内置 Nei–Gojobori 计数 + Fisher 精确检验</strong>；软件不运行 HyPhy FUBAR，界面上也直接写明了这一点。基因型与重配分类不依赖 BLAST+。</p>
+    <p>选择压力页显示的 dN/dS 类数字来自<strong>内置 Nei–Gojobori 计数 + Fisher 精确检验</strong>；软件不运行 HyPhy FUBAR，界面上也直接写明了这一点。位点表为 Suttie 2019 八张实验验证表单源，位号靠双序列比对换算。</p>
 
     <p class="backline">← 回到 <a href="index.html">介绍页</a>，或查看 <a href="changelog.html">更新日志</a>。</p>
   </div>
@@ -108,7 +144,7 @@ AGCTTA...（核苷酸序列）
   <div class="wrap">
     <span class="sig">国家流感中心 · 赵翔</span>
     <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>
-    <span>FluMutationAnalyzer v5.1.0</span>
+    <span>FluMutationAnalyzer v5.2.0</span>
     <p class="local-note">本页面是软件介绍，不提供在线分析。所有计算在使用者本机完成，待分析序列不上传任何服务。</p>
   </div>
 </footer>

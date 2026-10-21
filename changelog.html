@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>更新日志 — FluMutationAnalyzer</title>
-<meta name="description" content="FluMutationAnalyzer 版本更新日志，最近 8 个版本的功能新增与修复要点。">
+<meta name="description" content="FluMutationAnalyzer 版本更新日志，最近 9 个版本的功能新增与修复要点。">
 <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 <header class="masthead">
   <div class="wrap">
     <a class="wordmark" href="index.html">Flu<span>Mutation</span>Analyzer</a>
-    <span class="chip">v5.1.0</span>
+    <span class="chip">v5.2.0</span>
     <nav aria-label="页面导航">
       <a href="index.html">介绍</a>
       <a href="index.html#capabilities">能力</a>
@@ -26,13 +26,26 @@
 <div class="pagehead">
   <div class="wrap">
     <h1>更新日志</h1>
-    <p>这里列出最近 8 个版本的要点。完整的逐条历史在软件内 <strong>帮助 → 更新日志</strong> 中查看，那里随版本一起分发、不会漏项。</p>
+    <p>这里列出最近 9 个版本的要点。完整的逐条历史在软件内 <strong>帮助 → 更新日志</strong> 中查看，那里随版本一起分发、不会漏项。</p>
   </div>
 </div>
 
 <section>
   <div class="wrap prose">
     <div class="rel">
+
+      <article>
+        <h2>5.2.0</h2>
+        <p class="rel-title">【重构】位点库换代 Suttie 2019 单源 + 产品减法收口</p>
+        <ul>
+          <li>位点库换代：运行时位点表改为 Suttie 2019 八张实验验证表（297 行）单源，旧表就地归档；位号统一三套编号帧（HA 主号 H3、H5 样本括号另给 H5 号；NA 只给 N2 号；内部蛋白 GD96 全长号），换算改双序列比对，落在比对空隙里的位号判「未评估」并给出可见原因</li>
+          <li>位点分级（红/橙/黄三档）彻底取消——它从来不是文献给的；所有用户面不再显示档次</li>
+          <li>产品减法：重配检测、配方匹配、监测预警、风险评分、突变网络五块整体移除；疫苗匹配去掉自造评分、改按抗原区差异个数挑株；耐药不再标「极高/高/中/低」档次；基因星座只报「这组标记里检出了哪几条」</li>
+          <li>进化树不再导入即自动开建：改为树页签点「建树」按钮才跑，几分钟的 IQ-TREE 重活由你决定何时花</li>
+          <li>切换样本更跟手：比对结果进进程内缓存、重复比对直接命中；选择压力面板改后台线程计算</li>
+          <li>修复谱系定位进度条冻在 0%（maximum 被样本数污染，所有百分数更新被 Qt 拒绝）</li>
+        </ul>
+      </article>
 
       <article>
         <h2>5.1.0</h2>
@@ -60,10 +73,9 @@
           <li>突变分析：修复耐药级别三级氨基酸匹配、DMS 回退查询（命中率 0%→88%+）</li>
           <li>进化树：补齐 H5N1/H7N9/H9N2 骨架数据链路、H7N9 谱系定位恢复、标签防堆叠</li>
           <li>进化指数：修复读码框错位（锚点对齐替代盲砍信号肽）</li>
-          <li>重配检测：亚型感知过滤、两阶段同源搜索、匹配缓存键修复</li>
           <li>序列质控：P0–P2 共 16 项算法修复并补单元测试</li>
           <li>参考数据库：替换错误节段、恢复被丢弃参考文件</li>
-          <li>性能：重配分析提速约 3 倍；批量分析修复"卡在 60%"的管道死锁</li>
+          <li>性能：批量分析修复"卡在 60%"的管道死锁</li>
           <li>导出增强：Word/Excel 新增 DMS 注释列</li>
         </ul>
       </article>
@@ -87,7 +99,7 @@
           <li>修复 25 个模块级问题（B 型裂解位点假亚型、dN/dS 路径枚举、信号肽偏移等）</li>
           <li>突变位点总表 8 项优化：清除重复条目、修复 N9 位点坐标冲突</li>
           <li>位点数据生成器新上去重校验机制，防止数据源污染</li>
-          <li>耐药规则统一到单一来源，PA 巴洛沙韦条目合并</li>
+          <li>耐药规则统一到单一来源</li>
         </ul>
       </article>
 
@@ -146,7 +158,7 @@
   <div class="wrap">
     <span class="sig">国家流感中心 · 赵翔</span>
     <a href="mailto:zhaoxiang@ivdc.chinacdc.cn">zhaoxiang@ivdc.chinacdc.cn</a>
-    <span>FluMutationAnalyzer v5.1.0</span>
+    <span>FluMutationAnalyzer v5.2.0</span>
     <p class="local-note">本页面是软件介绍，不提供在线分析。所有计算在使用者本机完成，待分析序列不上传任何服务。</p>
   </div>
 </footer>
